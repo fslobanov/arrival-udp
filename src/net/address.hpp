@@ -23,6 +23,7 @@ public:
 public:
     address_t( known_e ip, port_type port ) noexcept( false );
     address_t( std::string_view ip, port_type port ) noexcept( false );
+    address_t( native_type address ) noexcept;
     
     address_t( const address_t & ) = default;
     address_t & operator=( const address_t & ) = default;

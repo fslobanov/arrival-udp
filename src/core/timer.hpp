@@ -1,8 +1,8 @@
+#pragma once
+
 #include <thread>
 #include <atomic>
 #include <functional>
-
-#pragma once
 
 namespace core {
 

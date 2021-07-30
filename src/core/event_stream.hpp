@@ -200,16 +200,11 @@ public:
     std::string_view get_name() const noexcept
     {
         return m_queue.get_name();
-    }    
-    
+    }
+
 private:
-    event_queue_t< event_type > m_queue;
-    std::thread m_thread;
-    subscriber_t & m_subscriber;
-    
-    
     struct entry_visitor_t final
-    {
+        {
         event_stream_t & self;
         state_type operator ()( event_type && event ) noexcept
         {
@@ -221,7 +216,12 @@ private:
         {
             return state;
         }
-    };
+        };
+    
+private:
+    event_queue_t< event_type > m_queue;
+    std::thread m_thread;
+    subscriber_t & m_subscriber;
     
 private:
     void event_loop() noexcept
@@ -263,10 +263,12 @@ private:
         }
         catch ( const std::exception & exception )
         {
+            std::cerr << "event stream internal exception occurred: " << get_name() << " - "<< exception.what() << std::endl;
             m_queue.shutdown();
         }
         catch( ... )
         {
+            std::cerr << "event stream internal unknown error occurred: " << get_name() <<std::endl;
             m_queue.shutdown();
         }
     }

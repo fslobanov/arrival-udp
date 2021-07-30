@@ -33,18 +33,11 @@ public:
     };
 
 public:
-    explicit receiver_t( subscriber_t & subscriber ) noexcept
-        : m_subscriber( subscriber )
-    {
-    
-    }
+    explicit receiver_t( subscriber_t & subscriber ) noexcept;
     virtual ~receiver_t() noexcept = default;
 
 protected:
-    void notify( datagram_t && datagram ) noexcept
-    {
-        m_subscriber.on_receive( std::move( datagram ) );
-    }
+    void notify( datagram_t && datagram ) noexcept;
 
 private:
     subscriber_t & m_subscriber;
@@ -54,13 +47,13 @@ class socket_sender_t final : public sender_t
                             , public core::event_stream_t< datagram_t >::subscriber_t
 {
 public:
-    explicit socket_sender_t( address_t address ) noexcept ( false );
+    explicit socket_sender_t( std::optional< address_t > bind_address = {} ) noexcept ( false );
     ~socket_sender_t() noexcept final;
     
     void send( datagram_t && datagram ) noexcept override;
 
 private:
-    address_t m_address;
+    std::optional< address_t > m_bind_address;
     ::core::event_stream_t< datagram_t > m_datagrams_stream;
     socket_descriptor_t m_socket = k_invalid_socket;
     
@@ -71,10 +64,17 @@ private:
 class socket_receiver_t final : public receiver_t
 {
 public:
-    ~socket_receiver_t() noexcept override = default;
+    explicit socket_receiver_t( address_t bind_address, subscriber_t & subscriber ) noexcept( false );
+    ~socket_receiver_t() noexcept override;
 
 private:
-    socket_descriptor_t m_socket = k_invalid_socket;
+    address_t m_bind_address;
+    socket_descriptor_t m_socket;
+    std::thread m_thread;
+    std::atomic_bool m_running;
+    
+private:
+    void receive_loop() noexcept;
 };
 
 }

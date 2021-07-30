@@ -42,6 +42,12 @@ address_t::address_t( std::string_view ip, address_t::port_type port ) noexcept(
     }
 }
 
+address_t::address_t( address_t::native_type value ) noexcept
+    : m_address( value )
+{
+
+}
+
 const address_t::native_type * address_t::as_native() const noexcept
 {
     return &m_address;
