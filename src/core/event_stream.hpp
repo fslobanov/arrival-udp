@@ -4,10 +4,13 @@
 #include <queue>
 #include <variant>
 #include <mutex>
+#include <atomic>
 #include <thread>
 #include <tuple>
 #include <condition_variable>
 #include <iostream>
+
+#include <core.hpp>
 
 namespace core {
 
@@ -92,7 +95,10 @@ public:
         lock_type lock{ m_mutex };
         std::cerr << m_name << " - pushing event to queue" << std::endl;
         
-        assert( m_state != state_e::shutdown );
+        if( state_e::running != m_state )
+        {
+            return;
+        }
         m_queue.push( std::move( entry ) );
         
         lock.unlock();
@@ -159,22 +165,30 @@ public:
     {
         std::cerr << get_name() << " - running event stream" << std::endl;
         m_queue.run();
+        std::atomic_bool running{ false };
         m_thread = std::thread{
-            [ this ]() noexcept
+            [ this, &running ]() noexcept
             {
+                running = true;
                 std::cerr << get_name() << " - running event stream loop" << std::endl;
                 pthread_setname_np( pthread_self(), get_name().data() );
                 event_loop();
                 std::cerr << get_name() << " - event stream loop finished"<< std::endl;
             }
         };
-        join_guard_t guard{ *this };
+        
+        m_thread.detach();
+        while( !running )
+        {
+            std::this_thread::yield();
+        }
     }
     
     void shutdown() noexcept
     {
         std::cerr << get_name() << " - shutting down event stream" << std::endl;
         m_queue.shutdown();
+        //const thread_join_guard guard{ m_thread };
     }
     
     void push( event_type && event ) noexcept
@@ -193,23 +207,6 @@ private:
     std::thread m_thread;
     subscriber_t & m_subscriber;
     
-    struct join_guard_t final
-    {
-        event_stream_t & self;
-        ~join_guard_t() noexcept
-        {
-            std::cerr << self.get_name() << " - joining event stream thread, thread is joinable: "
-                      << std::boolalpha << self.m_thread.joinable()
-                      << std::endl;
-            
-            if( self.m_thread.joinable() )
-            {
-                self.m_thread.join();
-                
-                std::cerr << self.get_name() << " - event stream thread join successful" << std::endl;
-            }
-        }
-    };
     
     struct entry_visitor_t final
     {

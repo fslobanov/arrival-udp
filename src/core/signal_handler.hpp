@@ -50,7 +50,11 @@ private:
     static std::atomic< signal_e > g_signal;
 
 private:
-    bool sync_signal_await() noexcept;
+    enum class await_result_e : bool
+    {
+        shutdown, resume
+    };
+    await_result_e synchronous_signal_await() noexcept;
 };
 
 }

@@ -22,6 +22,8 @@ target_sources(
 
 		"${CMAKE_CURRENT_SOURCE_DIR}/timestamp.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/timestamp.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/signal_handler.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/signal_handler.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/timer.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/timer.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/event_stream.hpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/core.hpp"
 )
 

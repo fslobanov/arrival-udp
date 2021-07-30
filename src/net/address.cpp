@@ -42,23 +42,27 @@ address_t::address_t( std::string_view ip, address_t::port_type port ) noexcept(
     }
 }
 
-const address_t::native_type & address_t::operator *() const noexcept
+const address_t::native_type * address_t::as_native() const noexcept
 {
-    return m_address;
+    return &m_address;
+}
+
+const address_t::generic_type * address_t::as_generic() const noexcept
+{
+    return reinterpret_cast< const generic_type * >( &m_address );
 }
 
 std::string address_t::get_ip() const noexcept
 {
-    std::string ip;
-    ip.resize( k_length );
-    auto ok = inet_ntop( k_protocol, &( m_address.sin_addr ), ip.data(), k_length );
+    char buffer[ k_length ];
+    auto ok = inet_ntop( k_protocol, &( m_address.sin_addr ), buffer, k_length );
     assert( ok );
-    return ip;
+    return std::string{ buffer };
 }
 
 address_t::port_type address_t::get_port() const noexcept
 {
-    return m_address.sin_port;
+    return ntohs( m_address.sin_port );
 }
 
 }

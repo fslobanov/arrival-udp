@@ -28,5 +28,14 @@ const datagram_t::bytes_t & datagram_t::get_bytes() const noexcept
     return m_bytes;
 }
 
+std::ostream & operator <<( std::ostream & os, const datagram_t & datagram ) noexcept
+{
+    os << "datagram: " << datagram.m_address.get_ip()
+       << ":" << datagram.get_address().get_port()
+       << ", size - " << datagram.get_bytes().size() << " bytes";
+    
+    return os;
+}
+
 }
 

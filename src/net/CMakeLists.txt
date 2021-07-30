@@ -23,6 +23,5 @@ target_sources(
 		"${CMAKE_CURRENT_SOURCE_DIR}/address.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/address.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/datagram.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/datagram.cpp"
 
-		#"${CMAKE_CURRENT_SOURCE_DIR}/main.cpp"
 )
 

@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <address.hpp>
+#include <ostream>
 
 namespace net {
 
@@ -34,6 +35,8 @@ public:
 public:
     const address_t & get_address() const noexcept;
     const bytes_t & get_bytes() const noexcept;
+    
+    friend std::ostream & operator <<( std::ostream & os, const datagram_t & datagram ) noexcept;
 
 private:
     address_t m_address;

@@ -11,6 +11,7 @@ namespace net {
 class address_t final
 {
 public:
+    using generic_type = sockaddr;
     using native_type = sockaddr_in;
     using port_type = uint16_t;
     
@@ -30,7 +31,8 @@ public:
     address_t & operator=( address_t && ) = default;
 
 public:
-    const native_type & operator*() const noexcept;
+    const native_type * as_native() const noexcept;
+    const generic_type * as_generic() const noexcept;
     
     std::string get_ip() const noexcept;
     port_type get_port() const noexcept;
