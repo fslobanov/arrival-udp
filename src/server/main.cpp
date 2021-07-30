@@ -27,7 +27,7 @@ signed main( int argument_count, char ** arguments ) noexcept
     net::socket_sender_t sender{ net::address_t{ "127.255.255.255", 4444 } };
     
     core::timer_t timer{
-        std::chrono::milliseconds{ 1000 },
+        std::chrono::milliseconds{ 1 },
         [ &sender, &broadcast ]() noexcept
         {
             core::bytes_t bytes{ std::byte{ 1 }, std::byte{ 2 } }; //TODO
