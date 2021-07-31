@@ -3,23 +3,29 @@ import os
 import signal
 
 from time import sleep
-from random import randrange
+from random import uniform
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 server_path = script_path + "/artifacts/arrival-server"
-endpoint_path = script_path + "/artifacts/arrival-endpoint"
 
-subprocess.call("pkill -f arrival-server")
-subprocess.call("pkill -f arrival-endpoint")
+subprocess.Popen(['pkill', "-f", "arrival-server"]).wait()
 
-server = subprocess.Popen([server_path], start_new_session=True)
-endpoint = subprocess.Popen([endpoint_path], start_new_session=True)
+server = subprocess.Popen([server_path], shell=True, stderr=subprocess.PIPE)
 
-wait = randrange(3, None, 0.01)
 
-sleep(wait)
-server.send_signal(signal.SIGUSR2)
-endpoint.send_signal(signal.SIGUSR2)
+for test_number in range(10):
+    print("##############################################")
+    print("Test:", test_number)
+    waiting_for = uniform(0.1, 2.0)
+    print("Waiting for:", waiting_for)
 
-server.wait()
-endpoint.wait()
+    sleep(waiting_for)
+
+    print("Sending USR2")
+    server.send_signal(12)
+
+    server.wait()
+
+    server_ret = server.returncode;
+    print("Server returns: ", server_ret)
+
