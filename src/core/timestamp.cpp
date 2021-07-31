@@ -33,9 +33,6 @@ std::string timestamp_t::to_string() const noexcept
     std::ostringstream oss;
     if( m_value )
     {
-        const auto milliseconds = std::chrono::duration_cast< std::chrono::milliseconds >( m_value->time_since_epoch() )
-            - std::chrono::duration_cast< std::chrono::seconds >( m_value->time_since_epoch() );
-        
         std::time_t time_t_value = std::chrono::system_clock::to_time_t( *m_value );
         std::tm tm_value{};
         
@@ -45,7 +42,9 @@ std::string timestamp_t::to_string() const noexcept
             tm_value = *std::localtime( &time_t_value );
         }
         
-        oss << std::put_time( &tm_value, "%Y-%m-%d %H:%M:%S.") << std::to_string( milliseconds.count() );
+        oss
+            << std::put_time( &tm_value, "%Y-%m-%d %H:%M:%S." )
+            << std::to_string( millis_since_second() );
     }
     else
     {
@@ -74,6 +73,18 @@ const timestamp_t::value_type & timestamp_t::get_value() const
 const timestamp_t::value_type & timestamp_t::operator *() const
 {
     return get_value();
+}
+
+std::size_t timestamp_t::millis_since_second() const noexcept
+{
+    if( !m_value )
+    {
+        return 0;
+    }
+    using namespace std::chrono;
+    return ( duration_cast< milliseconds >( m_value->time_since_epoch() )
+             - duration_cast< seconds >( m_value->time_since_epoch() ) )
+        .count();
 }
 
 }

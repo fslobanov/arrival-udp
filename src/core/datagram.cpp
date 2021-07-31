@@ -4,7 +4,7 @@
 
 namespace core {
 
-datagram_t::datagram_t( const address_t & m_address, core::bytes_t && m_bytes ) noexcept( false )
+datagram_t::datagram_t( address_t m_address, core::bytes_t && m_bytes ) noexcept( false )
     : m_address( m_address )
     , m_bytes( m_bytes )
 {

@@ -18,7 +18,7 @@ public:
     
     enum class known_e : uint32_t
     {
-        localhost
+        localhost, __max
     };
     
 public:
@@ -39,6 +39,8 @@ public:
     std::string get_ip() const noexcept;
     port_type get_port() const noexcept;
     
+    bool operator ==( const address_t & other ) const noexcept;
+    bool operator !=( const address_t & other ) const noexcept;
     friend std::ostream & operator <<( std::ostream & os, const address_t & address ) noexcept;
 
 private:

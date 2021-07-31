@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <tuple>
 
 namespace core {
 
@@ -69,6 +70,22 @@ std::string address_t::get_ip() const noexcept
 address_t::port_type address_t::get_port() const noexcept
 {
     return ntohs( m_address.sin_port );
+}
+
+bool address_t::operator ==( const address_t & other ) const noexcept
+{
+    const auto static make_tie = []( const address_t & a ) noexcept
+    {
+        return std::tie( /*a.m_address.sin_family,*/
+                         a.m_address.sin_addr.s_addr,
+                         a.m_address.sin_port );
+    };
+    return make_tie( *this ) == make_tie( other );
+}
+
+bool address_t::operator !=( const address_t & other ) const noexcept
+{
+    return !( *this == other );
 }
 
 std::ostream & operator <<( std::ostream & os, const address_t & address ) noexcept

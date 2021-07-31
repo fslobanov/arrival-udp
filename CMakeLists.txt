@@ -7,7 +7,6 @@ project( ArrivalUdp
 
 option( ArrivalUdp_BUILD_TESTS "Build tests" ON )
 
-
 if( NOT CMAKE_CXX_STANDARD )
 	set( CMAKE_CXX_STANDARD 17 )
 	set( CMAKE_CXX_STANDARD_REQUIRED ON )
@@ -41,7 +40,7 @@ if( NOT ArrivalUdp_SANITIZER IN_LIST ArrivalUdp_AVAILABLE_SANITIZERS )
 endif()
 
 if( none STREQUAL ArrivalUdp_SANITIZER )
-	message( WARNING "arrival-udp: no sanitizer will be used, you can use one of ${ArrivalUdp_AVAILABLE_SANITIZERS}" )
+	message( WARNING "arrival-udp: 'none' sanitizer will be used, you can use one of ${ArrivalUdp_AVAILABLE_SANITIZERS}" )
 else()
 	message( WARNING "arrival-udp: '${ArrivalUdp_SANITIZER}' sanitizer will be used" )
 	set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=${ArrivalUdp_SANITIZER}" )
@@ -55,5 +54,6 @@ add_subdirectory( src )
 
 if( ArrivalUdp_BUILD_TESTS )
 	include_directories( ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} )
+	include_directories( ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR} )
 	add_subdirectory( test )
 endif()

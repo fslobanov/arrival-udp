@@ -29,7 +29,7 @@ void task_processor::on_event( core::task_t && event ) noexcept
     const bool server_greater = *server > *endpoint;
     const auto msec = ( server_greater ? '-' : '+' ) + std::to_string( diff );
     
-    core::logger_t{} << "## Got task from server:\nEndpoint time is" << endpoint
+    core::logger_t{} << "### Got task from server:\nEndpoint time is" << endpoint
                      << "\nServer time is" << server
                      << "\nDifference is"
                      << msec << "milliseconds from server";

@@ -27,6 +27,8 @@ public:
     const value_type & get_value() const;
     const value_type & operator *() const;
     
+    std::size_t millis_since_second() const noexcept;
+    
 private:
     std::optional< value_type > m_value;
 };

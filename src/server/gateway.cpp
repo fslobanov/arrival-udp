@@ -6,6 +6,7 @@ gateway_t::gateway_t( gateway_t::sender_t && sender ) noexcept
     : m_tasks_stream( "gateway-tasks-stream", *this )
     , m_sender( std::move( sender ) )
 {
+    assert( m_sender && "null sender" );
     m_tasks_stream.run();
 }
 
@@ -22,9 +23,9 @@ void gateway_t::post( core::task_t task ) noexcept
 void gateway_t::on_event( core::task_t && task ) noexcept
 {
     try {
-        core::logger_t{} << "task sending attempt" << task;
         auto datagram = task.to_datagram();
         m_sender->send( std::move( datagram ) );
+        core::logger_t{} << "task send successful:" << task;
     }
     catch ( const std::exception & exception )
     {

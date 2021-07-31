@@ -8,7 +8,7 @@ namespace server {
 class gateway_t final : public core::event_stream_t< core::task_t >::subscriber_t
 {
 public:
-    using sender_t = std::unique_ptr< core::datagram_sender_t >;
+    using sender_t = std::shared_ptr< core::datagram_sender_t >;
 
 public:
     explicit gateway_t( sender_t && sender ) noexcept;
@@ -16,7 +16,7 @@ public:
 
 public:
     void post( core::task_t task ) noexcept;
-
+    
 private:
     core::event_stream_t< core::task_t > m_tasks_stream;
     sender_t m_sender;

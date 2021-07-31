@@ -3,6 +3,7 @@
 #include <task_processor.hpp>
 
 signed main( int argument_count, char ** arguments ) noexcept
+try
 {
     core::application_t app{ "arrival-endpoint", argument_count, arguments };
     
@@ -20,4 +21,9 @@ signed main( int argument_count, char ** arguments ) noexcept
     app.await();
     
     return EXIT_SUCCESS;
+}
+catch ( const std::exception & exception )
+{
+    core::logger_t{} << "exception occurred:" << exception.what();
+    return EXIT_FAILURE;
 }

@@ -16,7 +16,7 @@ public:
     constexpr const static std::size_t k_max_size = 512;
 
 public:
-    datagram_t( const address_t & m_address, core::bytes_t && m_bytes ) noexcept( false );
+    datagram_t( address_t m_address, core::bytes_t && m_bytes ) noexcept( false );
     
     datagram_t( const datagram_t & ) = default;
     datagram_t & operator=( const datagram_t & ) = default;
