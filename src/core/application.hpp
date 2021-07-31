@@ -9,10 +9,10 @@ namespace core {
 class application_t final
 {
 public:
-    application_t( signed argument_count, char ** arguments ) noexcept;
+    application_t( std::string name, signed argument_count, char ** arguments ) noexcept;
 
 public:
-    void run() noexcept;
+    void await() noexcept;
     void shutdown() noexcept;
 
 private:

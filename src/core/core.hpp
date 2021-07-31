@@ -23,4 +23,6 @@ struct thread_join_guard final
     }
 };
 
+
+
 }

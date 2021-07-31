@@ -14,6 +14,11 @@ target_sources(
 		"${CMAKE_CURRENT_SOURCE_DIR}/signal_handler.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/signal_handler.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/timer.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/timer.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/application.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/application.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/logger.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/socket.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/socket.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/address.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/address.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/datagram.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/datagram.cpp"
+		"${CMAKE_CURRENT_SOURCE_DIR}/task.hpp" "${CMAKE_CURRENT_SOURCE_DIR}/task.cpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/event_stream.hpp"
 		"${CMAKE_CURRENT_SOURCE_DIR}/core.hpp"
 )

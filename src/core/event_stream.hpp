@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <core.hpp>
+#include <logger.hpp>
 
 namespace core {
 
@@ -46,9 +47,8 @@ public:
     state_e run() noexcept
     {
         lock_type lock{ m_mutex };
-        std::cerr << m_name << " - running event queue" << std::endl;
         
-        assert( m_state == state_e::standby && "Only standby accepted" );
+        assert( m_state == state_e::standby && "Only standby satisfies" );
         m_state = state_e::running;
         m_queue.push( m_state );
         
@@ -61,7 +61,7 @@ public:
     state_e shutdown() noexcept
     {
         lock_type lock{ m_mutex };
-        std::cerr << m_name << " - shutting down event queue" << std::endl;
+        logger_t{} << m_name << "- shutting down event queue";
         
         auto current_state = std::exchange( m_state, state_e::shutdown );
         switch ( current_state )
@@ -93,7 +93,6 @@ public:
     void push( Event && entry ) noexcept
     {
         lock_type lock{ m_mutex };
-        std::cerr << m_name << " - pushing event to queue" << std::endl;
         
         if( state_e::running != m_state )
         {
@@ -108,7 +107,6 @@ public:
     
     entry_type pull() noexcept
     {
-        std::cerr << m_name << " - pulling event from queue" << std::endl;
         lock_type lock{ m_mutex };
         notifier.wait(
             lock,
@@ -117,7 +115,6 @@ public:
                 return !m_queue.empty();
             }
         );
-        std::cerr << m_name << " - event queue pull done" << std::endl;
         
         auto value = std::move( m_queue.front() );
         m_queue.pop();
@@ -163,21 +160,21 @@ public:
 public:
     void run() noexcept
     {
-        std::cerr << get_name() << " - running event stream" << std::endl;
+        logger_t{} << get_name() << "- running event stream";
         m_queue.run();
         std::atomic_bool running{ false };
         m_thread = std::thread{
             [ this, &running ]() noexcept
             {
                 running = true;
-                std::cerr << get_name() << " - running event stream loop" << std::endl;
+                logger_t{} << get_name() << "- running event stream loop";
                 pthread_setname_np( pthread_self(), get_name().data() );
                 event_loop();
-                std::cerr << get_name() << " - event stream loop finished"<< std::endl;
+                logger_t{} << get_name() << "- event stream loop finished";
             }
         };
         
-        m_thread.detach();
+        //m_thread.detach();
         while( !running )
         {
             std::this_thread::yield();
@@ -186,14 +183,13 @@ public:
     
     void shutdown() noexcept
     {
-        std::cerr << get_name() << " - shutting down event stream" << std::endl;
+        logger_t{} << get_name() << "- shutting down event stream";
         m_queue.shutdown();
-        //const thread_join_guard guard{ m_thread };
+        const thread_join_guard guard{ m_thread };
     }
     
     void push( event_type && event ) noexcept
     {
-        std::cerr << get_name() << " - pushing event to stream, event: " << event << std::endl;
         m_queue.push( std::move( event ) );
     }
     
@@ -243,19 +239,18 @@ private:
                 {
                     if( state_type::shutdown == *state )
                     {
-                        std::cerr << get_name() << " - event stream got shutdown from queue" << std::endl;
+                        logger_t{} << get_name() << "- event stream got shutdown from queue";
                         return;
                     }
                 }
                 else if( auto event = std::get_if< event_type >( &entry ) )
                 {
-                    std::cerr << get_name() << " - event stream got event from queue" << std::endl;
                     m_subscriber.on_event( std::move( *event ) );
                 }
                 else
                 {
-                    std::cerr << "index: " << entry.index()
-                              << ", valueless: " << std::boolalpha << entry.valueless_by_exception() << std::endl;
+                    logger_t{} << "index: " << entry.index()
+                              << ", valueless: " << std::boolalpha << entry.valueless_by_exception();
                     
                     assert( false );
                 }
@@ -263,12 +258,12 @@ private:
         }
         catch ( const std::exception & exception )
         {
-            std::cerr << "event stream internal exception occurred: " << get_name() << " - "<< exception.what() << std::endl;
+            logger_t{} << "event stream internal exception occurred: " << get_name() << "- "<< exception.what();
             m_queue.shutdown();
         }
         catch( ... )
         {
-            std::cerr << "event stream internal unknown error occurred: " << get_name() <<std::endl;
+            logger_t{} << "event stream internal unknown error occurred: " << get_name();
             m_queue.shutdown();
         }
     }

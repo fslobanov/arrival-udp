@@ -3,6 +3,7 @@
 #include <functional>
 #include <thread>
 #include <atomic>
+#include <mutex>
 #include <csignal>
 
 namespace core {
@@ -33,8 +34,8 @@ public:
     signal_handler_t & operator =( signal_handler_t && ) = delete;
 
 private:
-    signal_handler_t();
-    ~signal_handler_t() = default;
+    signal_handler_t() noexcept;
+    ~signal_handler_t() noexcept;
     
 public:
     void add_observer( observer_t && observer ) noexcept;
@@ -46,9 +47,12 @@ private:
     std::thread m_thread;
     std::vector< observer_t > m_observers;
     
+    std::mutex m_mutex;
+    std::atomic_bool m_running;
+    
     sigset_t m_signals;
     static std::atomic< signal_e > g_signal;
-
+    
 private:
     enum class await_result_e : bool
     {

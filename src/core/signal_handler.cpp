@@ -1,7 +1,11 @@
 #include <signal_handler.hpp>
+
 #include <cassert>
 #include <iostream>
 #include <cstring>
+
+#include <core.hpp>
+#include <logger.hpp>
 
 namespace core {
 
@@ -15,10 +19,11 @@ signal_handler_t & signal_handler_t::get_instance() noexcept
 
 void signal_handler_t::add_observer( signal_handler_t::observer_t && observer ) noexcept
 {
+    std::lock_guard< std::mutex > guard{ m_mutex };
     m_observers.emplace_back( std::move( observer ) );
 }
 
-signal_handler_t::signal_handler_t()
+signal_handler_t::signal_handler_t() noexcept
 {
     sigemptyset( &m_signals );
     sigaddset( &m_signals, SIGUSR2 );
@@ -27,13 +32,22 @@ signal_handler_t::signal_handler_t()
     assert( ok == 0 );
 }
 
+signal_handler_t::~signal_handler_t() noexcept
+{
+    //const thread_join_guard guard{ m_thread };
+}
+
 void signal_handler_t::run() noexcept
 {
-    std::atomic_bool running{ false };
+    std::lock_guard< std::mutex > guard{ m_mutex };
+    if( m_running )
+    {
+        return;
+    }
     m_thread = std::thread{
-        [ this, &running ]() noexcept
+        [ this ]() noexcept
         {
-            running = true;
+            m_running = true;
             pthread_setname_np( pthread_self(), "signal-handler" );
     
             try
@@ -45,14 +59,14 @@ void signal_handler_t::run() noexcept
             }
             catch( const std::exception & exception )
             {
-                std::cerr << "exception occurred on signal await: " << exception.what();
+                logger_t{} << "exception occurred on signal await:" << exception.what();
                 std::terminate();
             }
         }
     };
-    m_thread.detach();
     
-    while( !running )
+    m_thread.detach();
+    while( !m_running )
     {
         std::this_thread::yield();
     }
@@ -69,10 +83,10 @@ signal_handler_t::await_result_e signal_handler_t::synchronous_signal_await() no
     if( auto error = sigwait( &m_signals, &signal_value )
         ; error != 0 )
     {
-        std::cerr << "signal error occurred: " << std::strerror( error );
+        logger_t{} << "signal error occurred:" << std::strerror( error );
         return await_result_e::resume;
     }
-    std::cerr << "signal occurred: " << signal_value << std::endl;
+    logger_t{} << "signal occurred:" << signal_value;
     
     switch ( static_cast< signal_e >( signal_value ) )
     {

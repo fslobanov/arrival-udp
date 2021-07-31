@@ -5,6 +5,9 @@ project( ArrivalUdp
          HOMEPAGE_URL "https://github.com/fslobanov/arrival-udp"
          LANGUAGES "CXX" )
 
+option( ArrivalUdp_BUILD_TESTS "Build tests" ON )
+
+
 if( NOT CMAKE_CXX_STANDARD )
 	set( CMAKE_CXX_STANDARD 17 )
 	set( CMAKE_CXX_STANDARD_REQUIRED ON )
@@ -23,9 +26,9 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CA
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} CACHE STRING "debug runtime output directory" )
 
 if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-	set( build_flags "-march=native -Wall -Wextra ${build_flags}" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -Wall -Wextra" )
 elseif( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
-	set( build_flags "-march=native -Wall -Wextra ${build_flags}" )
+	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -Wall -Wextra" )
 else()
 	message( SEND_ERROR "Unknown compiler: ${CMAKE_CXX_COMPILER_ID}" )
 endif()
@@ -36,7 +39,21 @@ set_property( CACHE ArrivalUdp_SANITIZER PROPERTY STRINGS ${ArrivalUdp_AVAILABLE
 if( NOT ArrivalUdp_SANITIZER IN_LIST ArrivalUdp_AVAILABLE_SANITIZERS )
 	message( FATAL_ERROR "ArrivalUdp_SANITIZER must be one of ${ArrivalUdp_AVAILABLE_SANITIZERS}" )
 endif()
-set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=${ArrivalUdp_SANITIZER}" )
-set( CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=${ArrivalUdp_SANITIZER}" )
 
+if( none STREQUAL ArrivalUdp_SANITIZER )
+	message( WARNING "arrival-udp: no sanitizer will be used, you can use one of ${ArrivalUdp_AVAILABLE_SANITIZERS}" )
+else()
+	message( WARNING "arrival-udp: '${ArrivalUdp_SANITIZER}' sanitizer will be used" )
+	set( CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=${ArrivalUdp_SANITIZER}" )
+	set( CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=${ArrivalUdp_SANITIZER}" )
+endif()
+
+message( STATUS "arrival-udp: compiler flags are '${CMAKE_CXX_FLAGS}'" )
+
+add_subdirectory( googletest-release-1.11.0 )
 add_subdirectory( src )
+
+if( ArrivalUdp_BUILD_TESTS )
+	include_directories( ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR} )
+	add_subdirectory( test )
+endif()
