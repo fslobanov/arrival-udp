@@ -6,8 +6,8 @@ namespace core {
 logger_t::logger_t() noexcept
 {
     const auto now = timestamp_t::now();
-    m_content << now.to_string();
-    m_content << ( now.millis_since_second() < 100 ? " :" : ":" );
+    m_content << now.to_string() << ": ";
+    //m_content << ( now.millis_since_second() < 100 ? " :" : ":" );
 }
 
 logger_t::~logger_t() noexcept

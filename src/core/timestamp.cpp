@@ -42,9 +42,11 @@ std::string timestamp_t::to_string() const noexcept
             tm_value = *std::localtime( &time_t_value );
         }
         
+        const auto millis = millis_since_second();
         oss
             << std::put_time( &tm_value, "%Y-%m-%d %H:%M:%S." )
-            << std::to_string( millis_since_second() );
+            << std::to_string( millis )
+            << ( millis < 100 ? "0" : "" );
     }
     else
     {
